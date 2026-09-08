@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AFL KPI TEST SUITE - 자율주행 지게차 핵심 KPI 테스트 & 진단 시스템</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-info">
+        <h1 class="brand-title">AFL KPI TEST SUITE</h1>
+        <div class="brand-sub">자율주행 지게차 SW 중심 4단계 KPI 테스트 & Q&A 진단 플랫폼</div>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-tab="tab-dashboard">
+        <span class="nav-icon">📊</span> KPI 대시보드
+      </button>
+      <button class="nav-btn" data-tab="tab-qa">
+        <span class="nav-icon">💬</span> Q&A 진단 마법사
+      </button>
+      <button class="nav-btn" data-tab="tab-records">
+        <span class="nav-icon">📁</span> 저장 기록함 (<span id="record-count-badge">0</span>)
+      </button>
+      <button class="nav-btn" data-tab="tab-guide">
+        <span class="nav-icon">📖</span> 키워드 사용법
+      </button>
+    </nav>
+
+    <div class="header-status">
+      <span class="status-indicator"></span>
+      <span class="status-text">LOCAL STORAGE ACTIVE</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- TAB 1: Dashboard & 4-Stage KPI Testing -->
+    <section id="tab-dashboard" class="tab-content active">
+      <!-- Top Overview Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">전체 테스트 달성률</div>
+          <div class="stat-val" id="overall-progress-val">0%</div>
+          <div class="progress-track"><div class="progress-bar" id="overall-progress-bar" style="width: 0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">총 평가 항목</div>
+          <div class="stat-val text-blue" id="total-items-count">8 개</div>
+          <div class="stat-sub">4개 단계 순차 검증</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">합격 (PASS)</div>
+          <div class="stat-val text-green" id="passed-items-count">0 개</div>
+          <div class="stat-sub">기준 충족 항목</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">미달 (FAIL/대기)</div>
+          <div class="stat-val text-red" id="failed-items-count">8 개</div>
+          <div class="stat-sub">재테스트 필요 항목</div>
+        </div>
+      </div>
+
+      <!-- Quick Action Toolbar -->
+      <div class="toolbar-box">
+        <div class="toolbar-title">⚡ 빠른 테스트 제어</div>
+        <div class="toolbar-actions">
+          <button id="btn-save-all-state" class="btn btn-primary">💾 전체 상태 저장</button>
+          <button id="btn-reset-all-inputs" class="btn btn-secondary">🔄 입력 초기화</button>
+          <button id="btn-open-custom-modal" class="btn btn-accent">➕ 새 KPI 항목 추가</button>
+        </div>
+      </div>
+
+      <!-- 4 Stages KPI Cards Grid -->
+      <div class="stages-grid">
+        
+        <!-- Stage 1: Lead Screw -->
+        <div class="stage-card" data-stage="1">
+          <div class="stage-header">
+            <div class="stage-tag">STAGE 1</div>
+            <div class="stage-name">리드 스크류 (테스트)</div>
+            <div class="stage-status-pill" id="stage1-status">대기</div>
+          </div>
+          <div class="stage-target-meta">목표: 100g 승강 & 무전원 처짐 0mm | 기구 기초 검증</div>
+          
+          <div class="kpi-item-list" id="stage1-items">
+            <!-- Item 1-1 -->
+            <div class="kpi-item-row" data-id="s1_1">
+              <div class="item-left">
+                <span class="item-key">100g 하중 처짐량</span>
+                <span class="item-criteria">기준: ≤ 0 mm</span>
+              </div>
+              <div class="item-center">
+                <div class="input-wrap">
+                  <input type="number" step="0.1" class="kpi-input" placeholder="측정치 (mm)" id="input_s1_1" />
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s1_1">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s1_1')">판정</button>
+              </div>
+            </div>
+            <!-- Item 1-2 -->
+            <div class="kpi-item-row" data-id="s1_2">
+              <div class="item-left">
+                <span class="item-key">리미트 상·하한 정지</span>
+                <span class="item-criteria">기준: 즉각 정지 (오작동 0건)</span>
+              </div>
+              <div class="item-center">
+                <select class="kpi-select" id="input_s1_2">
+                  <option value="">선택</option>
+                  <option value="정상 즉각 정지 (0건)">정상 즉각 정지 (0건)</option>
+                  <option value="오작동/이탈 발생">오작동/이탈 발생</option>
+                </select>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s1_2">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s1_2')">판정</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Software -->
+        <div class="stage-card" data-stage="2">
+          <div class="stage-header">
+            <div class="stage-tag">STAGE 2</div>
+            <div class="stage-name">소프트웨어 (자율주행)</div>
+            <div class="stage-status-pill" id="stage2-status">대기</div>
+          </div>
+          <div class="stage-target-meta">목표: ArUco 마커 인식 & 정렬 알고리즘 | 코어 SW</div>
+          
+          <div class="kpi-item-list" id="stage2-items">
+            <!-- Item 2-1 -->
+            <div class="kpi-item-row" data-id="s2_1">
+              <div class="item-left">
+                <span class="item-key">마커 검출 성공률</span>
+                <span class="item-criteria">기준: ≥ 95 %</span>
+              </div>
+              <div class="item-center">
+                <div class="input-wrap">
+                  <input type="number" step="1" class="kpi-input" placeholder="측정치 (%)" id="input_s2_1" />
+                  <span class="input-unit">%</span>
+                </div>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s2_1">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s2_1')">판정</button>
+              </div>
+            </div>
+            <!-- Item 2-2 -->
+            <div class="kpi-item-row" data-id="s2_2">
+              <div class="item-left">
+                <span class="item-key">도킹 정렬 조향 연산</span>
+                <span class="item-criteria">기준: 오차 보정 로그 확인</span>
+              </div>
+              <div class="item-center">
+                <select class="kpi-select" id="input_s2_2">
+                  <option value="">선택</option>
+                  <option value="정상 연산 및 수렴 완료">정상 연산 및 수렴 완료</option>
+                  <option value="연산 실패/발산">연산 실패/발산</option>
+                </select>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s2_2">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s2_2')">판정</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Simulation -->
+        <div class="stage-card" data-stage="3">
+          <div class="stage-header">
+            <div class="stage-tag">STAGE 3</div>
+            <div class="stage-name">시뮬레이션 (SW 만들기)</div>
+            <div class="stage-status-pill" id="stage3-status">대기</div>
+          </div>
+          <div class="stage-target-meta">목표: 가상 주행 100% 완주 & FSM 상태전이 | SW 로직 검증</div>
+          
+          <div class="kpi-item-list" id="stage3-items">
+            <!-- Item 3-1 -->
+            <div class="kpi-item-row" data-id="s3_1">
+              <div class="item-left">
+                <span class="item-key">가상 경로 주행 완주율</span>
+                <span class="item-criteria">기준: 100 % (도킹 지점 도달)</span>
+              </div>
+              <div class="item-center">
+                <div class="input-wrap">
+                  <input type="number" step="1" class="kpi-input" placeholder="완주율 (%)" id="input_s3_1" />
+                  <span class="input-unit">%</span>
+                </div>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s3_1">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s3_1')">판정</button>
+              </div>
+            </div>
+            <!-- Item 3-2 -->
+            <div class="kpi-item-row" data-id="s3_2">
+              <div class="item-left">
+                <span class="item-key">FSM 전체 시나리오</span>
+                <span class="item-criteria">기준: 접근-도킹-승강-복귀 100%</span>
+              </div>
+              <div class="item-center">
+                <select class="kpi-select" id="input_s3_2">
+                  <option value="">선택</option>
+                  <option value="전체 상태전이 시퀀스 성공">전체 상태전이 시퀀스 성공</option>
+                  <option value="상태 루프/멈춤 발생">상태 루프/멈춤 발생</option>
+                </select>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s3_2">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s3_2')">판정</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Forklift Physical -->
+        <div class="stage-card" data-stage="4">
+          <div class="stage-header">
+            <div class="stage-tag">STAGE 4</div>
+            <div class="stage-name">지게차 실물 (통합 & 시연)</div>
+            <div class="stage-status-pill" id="stage4-status">대기</div>
+          </div>
+          <div class="stage-target-meta">목표: SW-HW 연동 & 1회 완주 시연 성공 | 최종 완성</div>
+          
+          <div class="kpi-item-list" id="stage4-items">
+            <!-- Item 4-1 -->
+            <div class="kpi-item-row" data-id="s4_1">
+              <div class="item-left">
+                <span class="item-key">SW-HW 명령 반응</span>
+                <span class="item-criteria">기준: 즉각 구동 (통신 무결)</span>
+              </div>
+              <div class="item-center">
+                <select class="kpi-select" id="input_s4_1">
+                  <option value="">선택</option>
+                  <option value="지령 즉각 반응 (정상)">지령 즉각 반응 (정상)</option>
+                  <option value="통신 지연/먹통">통신 지연/먹통</option>
+                </select>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s4_1">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s4_1')">판정</button>
+              </div>
+            </div>
+            <!-- Item 4-2 -->
+            <div class="kpi-item-row" data-id="s4_2">
+              <div class="item-left">
+                <span class="item-key">실물 도킹 & 화물 픽업</span>
+                <span class="item-criteria">기준: 1회 완주 성공</span>
+              </div>
+              <div class="item-center">
+                <select class="kpi-select" id="input_s4_2">
+                  <option value="">선택</option>
+                  <option value="1회 시연 완주 성공">1회 시연 완주 성공</option>
+                  <option value="도킹 실패/탈락">도킹 실패/탈락</option>
+                </select>
+              </div>
+              <div class="item-right">
+                <span class="verdict-badge pending" id="verdict_s4_2">대기</span>
+                <button class="btn-item-test" onclick="window.testSingleItem('s4_2')">판정</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- TAB 2: Interactive Q&A System -->
+    <section id="tab-qa" class="tab-content">
+      <div class="qa-container">
+        <!-- QA Header -->
+        <div class="qa-header-box">
+          <div class="qa-title">💬 대화형 KPI 자가진단 마법사</div>
+          <div class="qa-subtitle">단계별 질문에 답하면 KPI 합격 판정 및 맞춤형 피드백을 실시간 제공합니다.</div>
+        </div>
+
+        <!-- Chat / Dialogue Stream -->
+        <div class="qa-chat-box" id="qa-chat-stream">
+          <!-- Dynamic Messages will render here -->
+        </div>
+
+        <!-- QA Input Control Bar -->
+        <div class="qa-input-panel">
+          <div class="qa-quick-actions" id="qa-quick-btns">
+            <!-- Dynamic context buttons -->
+          </div>
+          <div class="qa-input-row">
+            <input type="text" id="qa-user-input" class="qa-input" placeholder="답변 수치 또는 내용을 입력하세요... (예: 0, 98, 성공)" />
+            <button id="qa-btn-send" class="btn btn-primary">전송 ↵</button>
+            <button id="qa-btn-restart" class="btn btn-secondary">🔄 진단 다시 시작</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB 3: Saved Records & Data Management -->
+    <section id="tab-records" class="tab-content">
+      <div class="records-container">
+        <div class="records-header">
+          <div class="records-title-wrap">
+            <div class="records-title">📁 KPI 테스트 저장 기록 보관소</div>
+            <div class="records-sub">저장된 테스트 결과 이력을 확인하고 개별/전체 삭제 및 내보내기를 수행합니다.</div>
+          </div>
+          <div class="records-actions">
+            <button id="btn-export-json" class="btn btn-secondary">📥 JSON 내보내기</button>
+            <button id="btn-clear-all-records" class="btn btn-danger">🗑️ 전체 기록 삭제</button>
+          </div>
+        </div>
+
+        <!-- Records Table -->
+        <div class="table-responsive">
+          <table class="records-table">
+            <thead>
+              <tr>
+                <th width="14%">저장 일시</th>
+                <th width="16%">단계 (Phase)</th>
+                <th width="24%">평가 항목</th>
+                <th width="20%">측정값</th>
+                <th width="14%">판정 결과</th>
+                <th width="12%">삭제</th>
+              </tr>
+            </thead>
+            <tbody id="records-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB 4: Keyword Quick Guide -->
+    <section id="tab-guide" class="tab-content">
+      <div class="guide-container">
+        <!-- Keyword Workflow Diagram -->
+        <div class="guide-card">
+          <div class="guide-badge">KEYWORD WORKFLOW</div>
+          <h2 class="guide-heading">프로그램 핵심 사용 프로세스 (5-STEP)</h2>
+          
+          <div class="keyword-flow-grid">
+            <div class="flow-step">
+              <div class="step-num">01</div>
+              <div class="step-key">측정 (Measure)</div>
+              <div class="step-tags">
+                <span class="tag">처짐량 실측</span>
+                <span class="tag">인식률 산출</span>
+                <span class="tag">FSM 시뮬</span>
+              </div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">02</div>
+              <div class="step-key">입력/판정 (Test)</div>
+              <div class="step-tags">
+                <span class="tag">수치 입력</span>
+                <span class="tag">[판정] 클릭</span>
+                <span class="tag">PASS/FAIL 자동판별</span>
+              </div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">03</div>
+              <div class="step-key">저장 (Save)</div>
+              <div class="step-tags">
+                <span class="tag">LocalStorage</span>
+                <span class="tag">전체 저장</span>
+                <span class="tag">이력 누적</span>
+              </div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">04</div>
+              <div class="step-key">Q&A 진단 (Ask)</div>
+              <div class="step-tags">
+                <span class="tag">문답식 진단</span>
+                <span class="tag">즉각 피드백</span>
+                <span class="tag">원인 분석</span>
+              </div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">05</div>
+              <div class="step-key">관리/삭제 (Delete)</div>
+              <div class="step-tags">
+                <span class="tag">개별 삭제</span>
+                <span class="tag">전체 비우기</span>
+                <span class="tag">JSON 백업</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Stage Keyword Matrix -->
+        <div class="guide-card" style="margin-top: 20px;">
+          <div class="guide-badge">4-STAGE KEYWORD MATRIX</div>
+          <h2 class="guide-heading">단계별 필수 키워드 & 판정 기준</h2>
+
+          <div class="matrix-grid">
+            <div class="matrix-col">
+              <div class="matrix-title text-blue">1. 리드 스크류</div>
+              <ul class="matrix-list">
+                <li><span class="k-dot"></span><strong>처짐량</strong>: ≤ 0 mm (무전원)</li>
+                <li><span class="k-dot"></span><strong>하중</strong>: 100g 승강</li>
+                <li><span class="k-dot"></span><strong>리미트</strong>: 0건 오작동 정지</li>
+                <li><span class="k-dot"></span><strong>목적</strong>: 기구 기초 동작 확인</li>
+              </ul>
+            </div>
+            <div class="matrix-col">
+              <div class="matrix-title text-cyan">2. 소프트웨어</div>
+              <ul class="matrix-list">
+                <li><span class="k-dot"></span><strong>인식률</strong>: ≥ 95% 마커 검출</li>
+                <li><span class="k-dot"></span><strong>도킹 제어</strong>: 중심/각도 보정</li>
+                <li><span class="k-dot"></span><strong>FPS</strong>: 웹캠 실시간성</li>
+                <li><span class="k-dot"></span><strong>목적</strong>: 자율주행 코어 알고리즘</li>
+              </ul>
+            </div>
+            <div class="matrix-col">
+              <div class="matrix-title text-purple">3. 시뮬레이션</div>
+              <ul class="matrix-list">
+                <li><span class="k-dot"></span><strong>완주율</strong>: 100% 가상 도킹</li>
+                <li><span class="k-dot"></span><strong>FSM</strong>: 접근➔도킹➔승강➔복귀</li>
+                <li><span class="k-dot"></span><strong>예외 처리</strong>: 마커 유실 시 정지</li>
+                <li><span class="k-dot"></span><strong>목적</strong>: SW 로직 사전 검증</li>
+              </ul>
+            </div>
+            <div class="matrix-col">
+              <div class="matrix-title text-green">4. 지게차 실물</div>
+              <ul class="matrix-list">
+                <li><span class="k-dot"></span><strong>연동</strong>: SW 명령 즉각 반응</li>
+                <li><span class="k-dot"></span><strong>도킹</strong>: 1회 완주 픽업 성공</li>
+                <li><span class="k-dot"></span><strong>안전</strong>: 비상 정지 즉시 작동</li>
+                <li><span class="k-dot"></span><strong>목적</strong>: 최종 1회 완주 시연</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Add Custom KPI Item -->
+  <div class="modal-overlay" id="custom-kpi-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">➕ 신규 KPI 평가 항목 추가</div>
+        <button class="modal-close" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>적용 단계 (Stage)</label>
+          <select id="new-item-stage" class="modal-input">
+            <option value="1">1. 리드 스크류 (단품 테스트)</option>
+            <option value="2">2. 소프트웨어 (자율주행 코어)</option>
+            <option value="3">3. 시뮬레이션 (SW 로직)</option>
+            <option value="4">4. 지게차 실물 (통합 시연)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>평가 항목 키워드명</label>
+          <input type="text" id="new-item-name" class="modal-input" placeholder="예: 배터리 전압 유지" />
+        </div>
+        <div class="form-group">
+          <label>목표 기준 (Criteria)</label>
+          <input type="text" id="new-item-criteria" class="modal-input" placeholder="예: ≥ 4.8V" />
+        </div>
+        <div class="form-group">
+          <label>측정값 (Initial Value)</label>
+          <input type="text" id="new-item-val" class="modal-input" placeholder="예: 5.0" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-confirm-add-item" class="btn btn-primary">항목 등록 및 저장</button>
+        <button id="btn-cancel-modal" class="btn btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toast-box"></div>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
