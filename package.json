@@ -1,0 +1,18 @@
+{
+  "name": "autonomous-forklift-kpi-platform",
+  "version": "1.0.0",
+  "description": "3D Digital Twin & Autonomous Forklift KPI Simulation & Fleet Management System",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "docx": "^9.7.1",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
